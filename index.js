@@ -20,7 +20,8 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run () {
     try{
         const serviceCollection = client.db('assignment11').collection('services');
-        const reviewCollection = client.db('assignment11').collection('reviews')
+        const reviewCollection = client.db('assignment11').collection('reviews');
+        const addServicesCollection = client.db('assignment11').collection('addServices')
 
         app.get('/services',async(req,res) =>{
             const query = {}
@@ -64,12 +65,36 @@ async function run () {
             res.send(result);
         });
 
+
+        app.patch('/reviews/:id', async(req,res) => {
+            const id = req.params.id;
+            const status = req.body.status
+            const query = {_id: ObjectId(id) }
+            const updatedReview = {
+                $set:{
+                    status: status
+
+                }
+            }
+            const result = await reviewCollection.updateOne(query,updatedReview);
+            res.send(result);
+        })
+
         app.delete('/reviews/:id', async(req, res) => {
             const id = req.params.id;
             const query = {_id: ObjectId(id) };
             const result = await reviewCollection.deleteOne(query);
             res.send(result);
         })
+
+        // add service
+
+        app.post('/addService',async (req,res) => {
+            const addService = req.body;
+            const result = await addServicesCollection.insertOne(addService);
+            res.send(result);
+        });
+
 
 
 
